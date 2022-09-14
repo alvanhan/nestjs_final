@@ -10,7 +10,7 @@ export class UserService {
 
     constructor(@InjectRepository(User) private userRepository: Repository<User>){}
 
-    async createUser(userData: CreateUserParams){
+    async createUser(userData: CreateUserParams): Promise<any> {
         const usercheck = await this.userRepository.findOne({
             where: {
                 email: userData.email

@@ -1,4 +1,5 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -13,13 +14,17 @@ export class AuthService {
 
     async login(authLoginDto: AuthLoginDto) {
         const user = await this.validateUser(authLoginDto);
+        if(!user){
+          throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+        }
         const payload = {
-          //payload untuk di jwt nya
           id: user.id,
+          email: user.email
         };
-    
+        
         return {
           access_token: this.jwtService.sign(payload),
+          expires_in : '1d',
         };
       }
     
@@ -27,7 +32,7 @@ export class AuthService {
         const { email, password } = authLoginDto;
         const vlidteuser = await this.userService.findByEmail(email);
         if (!(await vlidteuser?.validatePassword(password))) {
-          throw new UnauthorizedException();
+          throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
         }
         return vlidteuser;
       }

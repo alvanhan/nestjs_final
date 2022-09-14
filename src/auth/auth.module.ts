@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt/jwt.strategy';
 @Module({
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
+  exports: [AuthService],
   imports: [
     UserModule,
     PassportModule,
@@ -17,6 +18,7 @@ import { JwtStrategy } from './jwt/jwt.strategy';
       imports: [ConfigModule],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
+        signOptions: { expiresIn: '1d' },
       }),
       inject: [ConfigService],
     }),
