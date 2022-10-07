@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { Profile } from './user/entities/profile.entity';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 
 
-const entities = [User];
+const entities = [User, Profile];
 
 @Module({
   imports: [
@@ -23,6 +25,9 @@ const entities = [User];
     }),
     AuthModule,
     UserModule,
+    MulterModule.register({
+      dest: './files',
+    })
   ],
   controllers: [],
   providers: [],

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { User } from 'src/user/decorator/user.decorator';
 import { CreateUserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
@@ -39,8 +39,7 @@ export class AuthController {
         // console.log(cleanToken);
         // await this.jwtService.verify(cleanToken);
       return res.status(HttpStatus.OK).json({
-        data: user,
-        message: 'User found.'
+        user
     });
     }
 }

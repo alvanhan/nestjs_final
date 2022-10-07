@@ -1,14 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, ParseIntPipe } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { response } from 'express';
-import { Repository } from 'typeorm';
+import { use } from 'passport';
+import { RelationId, Repository } from 'typeorm';
+import { Profile } from './entities/profile.entity';
 import { User } from './entities/user.entity';
-import { CreateUserParams } from './utils/user.type';
+import { CreateUserParams, updateProfileParams } from './utils/index.type';
 
 @Injectable()
 export class UserService {
-
-    constructor(@InjectRepository(User) private userRepository: Repository<User>){}
+    constructor(
+                @InjectRepository(User) private userRepository: Repository<User>,
+                @InjectRepository(Profile) private profileRepository: Repository<Profile>
+        ){}
 
     async createUser(userData: CreateUserParams): Promise<any> {
         const usercheck = await this.userRepository.findOne({
@@ -18,16 +22,47 @@ export class UserService {
         });
         if(usercheck){
             throw new HttpException('Email is already taken.', HttpStatus.NOT_ACCEPTABLE);
-        }else{
-            const  signin = this.userRepository.create(
-                {
-                    ...userData,
-                }
-            )
-            await this.userRepository.save(signin);
-            // delete signin.password;
-            // return signin;
         }
+        const  signin = await this.userRepository.create(
+            {
+                email: userData.email,
+                password: userData.password,
+            }
+        )
+        await this.userRepository.save(signin);
+        await this.createProfile(userData);
+    }
+
+
+    //Profile
+    async profileUpdate(user, profileData: updateProfileParams ) {
+        const id = user.id;
+        const profile = await this.profileRepository.findOne({
+            where: {
+                user: id,
+            }
+        });
+        const idp = profile.id;
+        await this.profileRepository.update({id: idp}, {
+            address: profileData.address,
+            age: profileData.age,
+            name: profileData.name
+        });        
+    }
+
+    async createProfile(userData: CreateUserParams){
+        const user = await this.userRepository.findOne({
+                where: {
+                    email: userData.email
+                }
+            });
+        const createprofile = await this.profileRepository.create({
+                name: userData.name,
+
+        });
+        const saveprofile = await this.profileRepository.save(createprofile);
+        user.profile = saveprofile;
+        await this.userRepository.save(user);
     }
 
     async findByEmail(email: string) {
@@ -36,5 +71,24 @@ export class UserService {
             email: email,
           },
         });
+    }
+
+    async getprofile(userId: number){
+        console.log(userId);
+        
+        // const profileUser = await this.profileRepository.find({
+        //     where: {
+        //         user: userId
+        //     },
+        //     relations: ['user'],
+        //     loadRelationIds: true
+        // });
+        // console.log(profileUser);
+        // if(!profileUser){
+        //     throw new HttpException('Profile not found.', HttpStatus.AMBIGUOUS);
+            
+        // }
+
+        // return profileUser;
     }
 }

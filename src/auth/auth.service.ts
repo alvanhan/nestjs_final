@@ -24,7 +24,7 @@ export class AuthService {
         
         return {
           access_token: this.jwtService.sign(payload),
-          expires_in : '1d',
+          expires_in : '1 day',
         };
       }
     
