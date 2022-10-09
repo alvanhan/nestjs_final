@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { User } from 'src/user/decorator/user.decorator';
 import { CreateUserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
@@ -7,6 +7,10 @@ import { AuthLoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt/jwt-auth.guard';
 import { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { HasRoles } from 'src/user/decorator/roles.decorator';
+import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
+import { Role } from './model/role.enum';
+import { RolesGuard } from './guard/roles.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -41,5 +45,19 @@ export class AuthController {
       return res.status(HttpStatus.OK).json({
         user
     });
+    }
+
+    @HasRoles(Role.Admin)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Get('admin')
+    onlyAdmin(@Req() req) {
+      return req.user;
+    }
+
+    @HasRoles(Role.User, Role.Admin)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Get('user')
+    onlyUser(@Req() req) {
+      return req.user;
     }
 }

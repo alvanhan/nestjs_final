@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable, ParseIntPipe } from '@nestjs/com
 import { InjectRepository } from '@nestjs/typeorm';
 import { response } from 'express';
 import { use } from 'passport';
+import { Role } from 'src/auth/model/role.enum';
 import { RelationId, Repository } from 'typeorm';
 import { Profile } from './entities/profile.entity';
 import { User } from './entities/user.entity';
@@ -27,10 +28,13 @@ export class UserService {
             {
                 email: userData.email,
                 password: userData.password,
+                roles: Role.User
+                //ganti untuk rubah role nya di sini
             }
         )
         await this.userRepository.save(signin);
         await this.createProfile(userData);
+        // await this.createRole(userData);
     }
 
 
@@ -49,6 +53,22 @@ export class UserService {
             name: profileData.name
         });        
     }
+
+    //role
+    // async createRole(userRole: CreateUserParams) {
+    //     const user = await this.userRepository.findOne({
+    //         where: {
+    //             email: userRole.email
+    //         }
+    //     });
+    //     const craeteRoles = await this.roleRepository.create({
+    //             name: "user",
+
+    //     });
+    //     const saverole = await this.roleRepository.save(craeteRoles);
+    //     user.role = saverole;
+    //     await this.userRepository.save(user);
+    // }
 
     async createProfile(userData: CreateUserParams){
         const user = await this.userRepository.findOne({

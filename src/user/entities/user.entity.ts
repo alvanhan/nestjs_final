@@ -1,6 +1,7 @@
 import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { Profile } from "./profile.entity";
+import { Role } from "src/auth/model/role.enum";
 
 @Entity({name: 'users'})
 export class User extends BaseEntity {
@@ -14,6 +15,9 @@ export class User extends BaseEntity {
     password: string;
 
     @Column()
+    roles: string;
+
+    @Column()
     @CreateDateColumn()
     createdAt: Date;
   
@@ -21,10 +25,11 @@ export class User extends BaseEntity {
     @UpdateDateColumn()
     updatedAt: Date;
     
-    //relasi ke profile
-    // @OneToOne(() => Profile)
+    // roles: Role.User;
+    // relasi ke role
+    // @OneToOne(() => Role)
     // @JoinColumn()
-    // profile: Profile;
+    // public role: Role;
  
     @OneToOne(() => Profile, (profile) => profile.user) // specify inverse side as a second parameter
     public profile: Profile

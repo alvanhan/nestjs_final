@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { AuthLoginDto } from './dto/login.dto';
+import { Role } from './model/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -19,12 +20,12 @@ export class AuthService {
         }
         const payload = {
           id: user.id,
-          email: user.email
+          email: user.email,
+          roles: [user.roles]
         };
         
         return {
           access_token: this.jwtService.sign(payload),
-          expires_in : '1 day',
         };
       }
     
